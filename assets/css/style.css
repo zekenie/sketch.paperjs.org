@@ -4,6 +4,22 @@
   font-style: normal;
   src: url("http://assets.paperjs.org/fonts/akkurat-mono.eot");
   src: url("http://assets.paperjs.org/fonts/akkurat-mono.eot?#iefix") format("embedded-opentype"), url("http://assets.paperjs.org/fonts/akkurat-mono.woff") format("woff"), url("http://assets.paperjs.org/fonts/akkurat-mono.ttf") format("truetype"), url("http://assets.paperjs.org/fonts/akkurat-mono.svg#Akkurat-Mono") format("svg"); }
+#top-bar {
+  height: 2vh;
+  padding: 7px;
+  border-bottom: 2px solid #dddddd; }
+  #top-bar #delete {
+    float: right; }
+  #top-bar #back-arrow {
+    border: none;
+    font-size: 1.4em; }
+  #top-bar #script-name {
+    padding-top: 0px;
+    font-size: 1.4em;
+    border: none; }
+    #top-bar #script-name:focus {
+      outline: none; }
+
 body,
 html,
 .paperscript {
@@ -36,6 +52,7 @@ textarea {
 
 a {
   color: #000;
+  border-radius: 3px;
   text-decoration: none;
   border-bottom: 1px solid #000; }
   a:hover {

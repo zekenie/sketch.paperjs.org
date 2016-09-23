@@ -108,8 +108,11 @@ function encode(string) {
 var script = {
 	name: 'Sketch',
 	code: '',
-	breakpoints: []
+	breakpoints: [],
+	saveName: ''
 };
+
+manageScriptName(script, updateHash);
 
 function getScriptId(script) {
 	return script.name + '.sketch.paperjs.org';
@@ -128,49 +131,65 @@ function getTimeStamp() {
 }
 
 function updateHash() {
-	window.location.hash = '#S/' + encode(JSON.stringify(script));
+	var hash = encode(JSON.stringify(script));
+	window.location.hash = '#S/' + hash;
+	if(script.saveName) {
+		window.location.search = `name=${script.saveName}`;
+		codeStore.save(script.saveName, hash);
+	}
 }
 
-if (window.location.hash) {
-	var hash = window.location.hash.substr(1),
-		version = hash.substr(0, 2),
-		string = hash.substr(2),
-		error = true;
-	if (version == 'T/') {
-		script.code = decode(string) || '';
-		error = false;
-	} else if (version == 'S/') {
-		try {
-			script = JSON.parse(decode(string));
-			error = false;
-		} catch (e) {
-			if (console.error)
-				console.error(e);
-		}
-	} else if (version == 'Z/') {
-		try {
-			script = JSON.parse(decode(string));
-			error = false;
-		} catch (e) {
-			if (console.error)
-				console.error(e);
+function loadFromUrl() {
+
+	function getQueryVariable(variable) {
+		var query = window.location.search.substring(1);
+		var vars = query.split("&");
+		for (var i=0;i<vars.length;i++) {
+			var pair = vars[i].split("=");
+			if(pair[0] == variable){return pair[1];}
 		}
 	}
-	if (error) {
-		alert('That shared link format is not supported.');
+
+	// if the script is named, try to look in local storage for that name
+	if(window.location.search) {
+		var name = getQueryVariable('name');
+		window.location.hash = '#S/' + codeStore.get(name);
 	}
-} 
-if (!script.code) {
-	// Support only one script for now, named 'Untitled'. Later on we'll have
-	// a document switcher.
-	// Try legacy storage
-	script.code = localStorage[getScriptId(script)]
-			// Legacy naming
-			// TODO: Remove in 2016:
-			|| localStorage['paperjs_'
-				+ window.location.pathname.match(/\/([^\/]*)$/)[1]]
-			|| '';
+	
+	// if we have a hash, either by looking in localstorage, or by just
+	// having one, load it
+	if (window.location.hash) {
+		var hash = window.location.hash.substr(1),
+			version = hash.substr(0, 2),
+			string = hash.substr(2),
+			error = true;
+			console.log(version);
+		if (version == 'T/') {
+			script.code = decode(string) || '';
+			error = false;
+		} else if (version == 'S/') {
+			try {
+				Object.assign(script, JSON.parse(decode(string)));
+				error = false;
+			} catch (e) {
+				if (console.error)
+					console.error(e);
+			}
+		} else if (version == 'Z/') {
+			try {
+				Object.assign(script, JSON.parse(decode(string)));
+				error = false;
+			} catch (e) {
+				if (console.error)
+					console.error(e);
+			}
+		}
+
+	} 
 }
+
+loadFromUrl();
+
 
 if (!script.breakpoints)
 	script.breakpoints = [];
